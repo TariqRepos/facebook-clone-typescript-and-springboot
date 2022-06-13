@@ -3,7 +3,58 @@
 @tailwind utilities;
 
 @layer components {
-  .icon {
+  .navbar__container {
+    @apply sticky top-0 z-50 bg-white flex items-center p-2 lg:px-5 shadow-md
+  }
+
+  .navbar__left {
+    @apply flex items-center
+  }
+
+  .navbar__search {
+    @apply flex ml-2 items-center rounded-full bg-gray-100
+  }
+
+  .navbar__search__icon {
+    @apply pl-2 h-6 text-gray-600
+  }
+
+  .navbar__search__box {
+    @apply hidden md:inline-flex ml-2 items-center bg-transparent
+    outline-none placeholder-gray-500 flex-shrink h-10
+  }
+
+  .navbar__middle {
+    @apply flex justify-center flex-grow
+  }
+
+  .navbar__icon__group {
+    @apply flex space-x-6 md:space-x-2
+  }
+
+  .navbar__search__icon {
+    @apply pl-2 h-6 text-gray-600
+  }
+
+  .navbar__right {
+    @apply flex items-center sm:space-x-2 justify-end
+  }
+
+  .navbar__name {
+    @apply whitespace-nowrap font-semibold pr-3
+  }
+  
+  .navbar__icon {
     @apply hidden xl:inline-flex p-2 h-10 w-10 bg-gray-200 rounded-full text-gray-700 cursor-pointer hover:bg-gray-300
+  }
+
+  .icon__container {
+    @apply flex items-center cursor-pointer
+    md:px-10 sm:h-14 md:hover:bg-gray-100 rounded-xl
+    active:border-b-2 active:border-blue-500 hover:text-blue-500
+  }
+
+  .icon__item {
+    @apply h-5 text-gray-500 text-center sm:h-7
   }
 }
