@@ -1,50 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
-import Layout from './components/Layout/Layout';
-import Form from './components/Form';
-import Navbar from './components/Navbar/Navbar';
-import Login from './auth/Login';
+import React, { useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Auth from './components/Auth/Auth';
-import firebase from "firebase/app";
 import { auth } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import Home from './pages/Home';
+import Home from './components/Home/Home';
 
 const App = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [authState, setAuthState] = useState('')
+  const [userProfile, setUserProfile] = useState(auth?.currentUser);
+  
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      setUserProfile(auth?.currentUser);
+    } else {
+      setUserProfile(null);
+    }
+  });
 
-  useEffect(() => {
-    const unSubscribeAuth = onAuthStateChanged(auth,
-    async authenticatedUser => {
-      if(authenticatedUser) {
-        setUser(authenticatedUser)
-        setAuthState('home');
-      } else {
-        setUser(null);
-        setAuthState('login')
-      }
-    })
-
-    return unSubscribeAuth;
-  }, [user])
-
-  if(authState === null) return <div className='font-bold text-center text-5xl'>loading...</div>
-  if(authState === 'login') return <Auth user={user} setAuthState={setAuthState} setUser={setUser}/>
-  // if(authState === 'register') return <Register setAuthState={setAuthState} setUser={setUser}/> 
-  if(user) return <Home user={user} setAuthState={setAuthState} setUser={setUser}/>
-
-  // return (
-  //   <div>
-  //     <Auth />
-  //     {/* <Navbar />
-  //     <Layout /> */}
-  //   </div>
-  // );
   return (
-    <div>
-      APP
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={ <Navigate to={ userProfile ? '/home' : '/auth' } />} />
+        <Route path='/home' element={ userProfile ? <Home /> : <Navigate to='/auth' /> } />
+        <Route path='/auth' element={ userProfile ? <Navigate to='/home' /> : <Auth /> } />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

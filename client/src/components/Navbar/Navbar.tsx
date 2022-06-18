@@ -4,9 +4,24 @@ import fbLogo from "../../images/logo.png"
 import HeaderIcon from './HeaderIcon/HeaderIcon'
 import { BellIcon, ChatIcon, ChevronDownIcon, HomeIcon, UserGroupIcon, ViewGridIcon } from '@heroicons/react/solid'
 import { FlagIcon, PlayIcon, SearchIcon, ShoppingCartIcon } from '@heroicons/react/outline'
+import { auth } from '../../firebase'
+import { signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom'
 
 
-const navbar = () => {
+const Navbar: React.FC = () => {
+    const navigate = useNavigate();
+
+    const logOff = () => {
+        signOut(auth).then(() => {
+            // Sign-out successful.
+            
+          }).catch((error) => {
+            // An error happened.
+          });
+    }
+    
+
     return (
         <div className='navbar__container'>
             <div className='navbar__left'>
@@ -33,10 +48,10 @@ const navbar = () => {
                 <ViewGridIcon className='navbar__icon' />
                 <ChatIcon className='navbar__icon' />
                 <BellIcon className='navbar__icon' />
-                <ChevronDownIcon className='navbar__icon' />
+                <ChevronDownIcon onClick={logOff} className='navbar__icon' />
             </div>
         </div>
     )
 }
 
-export default navbar
+export default Navbar

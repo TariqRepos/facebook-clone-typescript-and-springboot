@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import Input from './Input';
-import { User } from 'firebase/auth';
+import { auth } from '../../firebase';
+import { User, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
-interface Props {
-  user: User | null;
-  setAuthState: React.Dispatch<React.SetStateAction<string>>;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>
-}
-
-const Form: React.FC<Props> = ({ user, setAuthState, setUser }) => {
-  // const dispatch = useDispatch();
-  // const navigate = useNavigate();
+const Form: React.FC = () => {
+  const navigate = useNavigate();
   const [isSignup, setIsSignup] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -22,29 +17,27 @@ const Form: React.FC<Props> = ({ user, setAuthState, setUser }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if(formData.email !== "" && formData.password !== ""){
-      console.log("hii");
-      
-    }
-    // if(isSignup) {
-    //   dispatch(signup(formData, history));
-    // } else {
-    //   dispatch(signin(formData, history));
-    // }
-  };
 
-  // const onSignUpHandle = () => {
-  //   if(email !== null && password !== null) {
-  //       createUserWithEmailAndPassword(auth, email, password)
-  //       .then((user) => {
-  //           setUser(user.user.email);
-  //           setAuthState('home')
-  //       })
-  //       .catch((err) => {
-  //           alert(err)
-  //       })
-  //   }
-// }
+    if(formData.email !== "" && formData.password !== "") {
+      if(isSignup) {
+        createUserWithEmailAndPassword(auth, formData.email, formData.password)
+        .then((user) => {
+          // localStorage.setItem("profile", JSON.stringify({user.user.}));
+        })
+        .catch((err) => {
+          alert(err);
+        })
+      }
+      else {
+        signInWithEmailAndPassword(auth, formData.email, formData.password)
+        .then(() => {          
+        })
+        .catch((err) => {
+          alert(err);
+        })
+      }
+    }
+  };
 
   const handleChange = (e: React.FormEvent) => {
     const target = e.target as HTMLInputElement;
