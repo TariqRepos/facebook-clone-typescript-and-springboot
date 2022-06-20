@@ -1,27 +1,18 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { useLocalStorage, useReadLocalStorage } from 'usehooks-ts'
 import Auth from './components/Auth/Auth';
-import { auth } from './firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
 import Home from './components/Home/Home';
 
 const App = () => {
-  const [userProfile, setUserProfile] = useState(auth?.currentUser);
-  
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      setUserProfile(auth?.currentUser);
-    } else {
-      setUserProfile(null);
-    }
-  });
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('profile') || '{}'));
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={ <Navigate to={ userProfile ? '/home' : '/auth' } />} />
-        <Route path='/home' element={ userProfile ? <Home /> : <Navigate to='/auth' /> } />
-        <Route path='/auth' element={ userProfile ? <Navigate to='/home' /> : <Auth /> } />
+        <Route path="/" element={ <Navigate to={ JSON.stringify(user) !== '{}' ? '/home' : '/home' } />} />
+        <Route path='/home' element={ JSON.stringify(user) !== '{}' ? <Home user={user} setUser={setUser} /> : <Navigate to='/auth' /> } />
+        <Route path='/auth' element={ JSON.stringify(user) !== '{}'? <Navigate to='/home' /> : <Auth user={user} setUser={setUser} /> } />
       </Routes>
     </BrowserRouter>
   );

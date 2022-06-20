@@ -5,7 +5,14 @@ import Input from './Input';
 import { User } from 'firebase/auth';
 import Form from './Form'
 
-const Auth: React.FC = () => {
+interface Props {
+  user: JSON;
+  setUser: React.Dispatch<React.SetStateAction<JSON>>;
+}
+
+const Auth: React.FC<Props> = ({ user, setUser }) => {
+  console.log('here');
+  
   return (
     <div className='flex w-full h-screen bg-blue-500'>
       
@@ -17,7 +24,7 @@ const Auth: React.FC = () => {
       </div>
 
       <div className='w-full m-20 flex items-center justify-center lg:w-1/2'>
-        <Form />
+        <Form user={user} setUser={setUser} />
       </div>
     </div>
   );

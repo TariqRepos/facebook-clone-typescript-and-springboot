@@ -1,52 +1,56 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Input from './Input';
-import { auth } from '../../firebase';
-import { User, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInUser, signUpUser } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 
-const Form: React.FC = () => {
+interface Props {
+  user: JSON;
+  setUser: React.Dispatch<React.SetStateAction<JSON>>;
+}
+
+const Form: React.FC<Props> = ({ user, setUser }) => {
   const navigate = useNavigate();
   const [isSignup, setIsSignup] = useState(false);
+  const [photo, setPhoto] = useState<any>(null);
+  const filePickerRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if(formData.email !== "" && formData.password !== "") {
-      if(isSignup) {
-        createUserWithEmailAndPassword(auth, formData.email, formData.password)
-        .then((user) => {
-          // localStorage.setItem("profile", JSON.stringify({user.user.}));
-        })
-        .catch((err) => {
-          alert(err);
-        })
+      if(isSignup) { // Signing up new user
+        await signUpUser(formData.firstName, formData.lastName, formData.email, formData.password, photo);
+      } else { // Signing in existing user        
+        await signInUser(formData.email, formData.password);
       }
-      else {
-        signInWithEmailAndPassword(auth, formData.email, formData.password)
-        .then(() => {          
-        })
-        .catch((err) => {
-          alert(err);
-        })
-      }
+
+      navigate('/');
+      setUser(JSON.parse(localStorage.getItem('profile') || '{}'));
+    }
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const reader = new FileReader();
+    if(e.target.files !== null) {
+      reader.readAsDataURL(e.target.files[0])
+    } 
+    reader.onload = (readerEvent: ProgressEvent<FileReader>) => {
+      setPhoto(readerEvent.target?.result)      
     }
   };
 
-  const handleChange = (e: React.FormEvent) => {
-    const target = e.target as HTMLInputElement;
-    setFormData({ ...formData, [target.name]: target.value});
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value});  
   };
 
   const switchMode = () => {
-    console.log(process.env.FIREBASE_API_KEY);
-    
     setIsSignup((prevIsSignup) => !prevIsSignup);
     
     setFormData({
@@ -54,7 +58,7 @@ const Form: React.FC = () => {
       lastName: "",
       email: "",
       password: "",
-      confirmPassword: ""
+      confirmPassword: "",
     });
   };
 
@@ -64,32 +68,57 @@ const Form: React.FC = () => {
           <h1 className='text-5xl font-semibold'>Welcome Back</h1>
           <p className='font-medium text-lg text-gray-500 mt-4'>Welcome back! Please enter you details.</p>
       </div>
-      <div className='mt-8'>
+      <div className='mt-4'>
         { isSignup && (
           <div className='flex w-full'>
             <div className='w-full mr-2'>
-              <Input name="firstName" label="First Name" value={formData.firstName} handleChange={handleChange} type="text" autoFocus={isSignup ? true : false} />
+              <Input name="firstName" label="First Name" value={formData.firstName} handleChange={handleChange} handleSubmit={handleSubmit} type="text" autoFocus={isSignup ? true : false} />
             </div>
             <div className='w-full ml-2'>
-              <Input name="lastName" label="Last Name" value={formData.lastName} handleChange={handleChange} type="text" autoFocus={false} />
+              <Input name="lastName" label="Last Name" value={formData.lastName} handleChange={handleChange} handleSubmit={handleSubmit} type="text" autoFocus={false} />
             </div>
             
           </div>
         )}
-        <Input name="email" label="Email" value={formData.email} handleChange={handleChange} type="email" autoFocus={!isSignup ? true : false} />
-        <Input name="password" label="Password" value={formData.password} handleChange={handleChange} type="password" autoFocus={false}  />
-        { isSignup && <Input name="confirmPassword" label="confirmPassword" value={formData.confirmPassword} handleChange={handleChange} type="password" autoFocus={false} />}
+        <Input name="email" label="Email" value={formData.email} handleChange={handleChange} handleSubmit={handleSubmit} type="email" autoFocus={!isSignup ? true : false} />
+        { !isSignup && <Input name="password" label="Password" value={formData.password} handleChange={handleChange} handleSubmit={handleSubmit} type="password" autoFocus={false}  /> }
+        { isSignup && 
+          <div className='flex w-full'>
+            <div className='w-full mr-2'>
+              <Input name="password" label="Password" value={formData.password} handleChange={handleChange} handleSubmit={handleSubmit} type="password" autoFocus={false}  />
+              
+            </div>
+            <div className='w-full ml-2'>
+              <Input name="confirmPassword" label="Confirm Password" value={formData.confirmPassword} handleChange={handleChange} handleSubmit={handleSubmit} type="password" autoFocus={false} />
+            </div>
+          </div>
+        }
+        { isSignup &&
+          <div className='flex flex-col mt-2'>
+            <label className='text-lg font-medium'>Profile Picture</label>
+            <div>
+              {!photo ? 
+                (<input className='w-full border-2 border-gray-100 rounded-xl p-4 mt-1 bg-transparent' name='photo' onChange={handleImageChange} required type='file' placeholder='Enter your Profile Picture' />) 
+                : (
+                  <div onClick={() => setPhoto(null)} className='flex flex-col mt-2 filter hover:brightness-110 transition duration-150 transform hover:scale-105 cursor-pointer'>
+                    <img className='mx-auto h-20 w-20 rounded-full' src={photo} />
+                  </div>
+                )
+              }
+            </div>
+          </div>
+         }
         { !isSignup && 
           <div className='mt-8 flex justify-between items-center'>
               <div>
-                  <input  type="checkbox" id='remember'/>
+                  <input type="checkbox" id='remember'/>
                   <label className='ml-2 font-medium text-base' htmlFor="remember">Remember for 30 days</label>
               </div>
               <button className='font-medium text-base text-blue-500'>Forgot password</button>
           </div>
         }
         
-        <div className='mt-8 flex flex-col gap-y-4'>
+        <div className='mt-4 flex flex-col gap-y-4'>
             <button onClick={handleSubmit} className='active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]  ease-in-out transform py-4 bg-blue-500 rounded-xl text-white font-bold text-lg'>{isSignup ? 'Sign Up' : 'Sign In'}</button>
             <button 
                 className='flex items-center justify-center gap-2 active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01] ease-in-out transform py-4 rounded-xl text-gray-700 font-semibold text-lg border-2 border-gray-100 '>

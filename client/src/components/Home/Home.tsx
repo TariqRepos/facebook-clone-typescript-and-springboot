@@ -2,10 +2,15 @@ import React from 'react'
 import Layout from '../Layout/Layout'
 import Navbar from '../Navbar/Navbar'
 
-const Home = () => {
+interface Props {
+  user: JSON;
+  setUser: React.Dispatch<React.SetStateAction<JSON>>;
+}
+
+const Home: React.FC<Props> = ({ user, setUser }) => {
   return (
     <div>
-      <Navbar />
+      <Navbar user={user} setUser={setUser} />
       <Layout />
     </div>
   )

@@ -1,20 +1,16 @@
-
 import React from 'react';
-import { TextField, Grid, InputAdornment, IconButton } from '@material-ui/core';
-
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
 
 interface Props {
   name: string;
   value: string;
-  handleChange: (e: React.FormEvent) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSubmit: (e: React.FormEvent) => void;
   label: string;
   autoFocus: boolean;
   type: string;
 }
 
-const Input: React.FC<Props> = ({ name, value, handleChange, label, autoFocus, type }) => (
+const Input: React.FC<Props> = ({ name, value, handleChange, handleSubmit, label, autoFocus, type }) => (
   <div className='flex flex-col mt-2'>
     <label className='text-lg font-medium'>{label}</label>
     <input
@@ -22,6 +18,7 @@ const Input: React.FC<Props> = ({ name, value, handleChange, label, autoFocus, t
       name={name}
       value={value}
       onChange={handleChange}
+      onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && handleSubmit(e)}
       required
       autoFocus={autoFocus}
       type={type}
