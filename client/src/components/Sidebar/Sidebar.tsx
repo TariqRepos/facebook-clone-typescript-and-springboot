@@ -5,9 +5,11 @@ import{ CalendarIcon, ClockIcon, DesktopComputerIcon, UsersIcon } from "@heroico
 
 
 const Sidebar = () => {
+  const userProfile = JSON.parse(localStorage.getItem('profile') || '{}');
+
   return (
     <div className="p-2 mt-5 max-w-[600px] xl:min-w-[300px]">
-      <SidebarRow src="" title="BLANK" />
+      <SidebarRow src={userProfile?.photoURL || ''} title={userProfile?.displayName || 'USER_NAME'} />
       <SidebarRow Icon={UsersIcon} title="Friends" />
       <SidebarRow Icon={UserGroupIcon} title="Groups" />
       <SidebarRow Icon={ShoppingBagIcon} title= "Marketplace" />
