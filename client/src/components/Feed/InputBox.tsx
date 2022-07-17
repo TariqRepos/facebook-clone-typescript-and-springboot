@@ -25,7 +25,7 @@ const InputBox = () => {
 
   const sendPost = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: submitting posts 2:51:38
+    // TODO: submitting posts 2:51:38, 3:05
   }
 
   return (
